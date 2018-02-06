@@ -42,14 +42,22 @@ export class AppComponent implements OnInit {
     } else {
       this.sendMessage(this.session, this.sequence, this.inputMsg);
     }
+    this.inputMsg = '';
   }
 
   private askFromDefault(index): void {
+    this.setUserObject(this.outputMsg, this.inputMsg);
     if (index !== this.defaultQuestion.length) {
-      this.messageBlock.push(`Bot: ${this.defaultQuestion[index]}`);
-      this.userDetails[this.defaultQuestion[index]] = this.inputMsg;
+      this.outputMsg = this.defaultQuestion[index];
+      this.messageBlock.push(`Bot: ${this.outputMsg}`);
     } else {
       this.checkAvailability();
+    }
+  }
+
+  private setUserObject(key, value) {
+    if( key !== '' ){
+      this.userDetails[key] = value; 
     }
   }
 
