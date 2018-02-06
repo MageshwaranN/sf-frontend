@@ -17,34 +17,36 @@ export class AppComponent implements OnInit {
     'First Name',
     'Last Name',
     'DOB(YYYY-MM-DD)',
+    'Product Nummer',
+    'Post Code',
     'Email-ID'
   ];
   messageBlock: string[] = [];
   inputMsg: string = '';
   outputMsg: string = '';
-  sequence: number = 0;
+  sequence: number = 1;
   defaultMessageSequence: number = 0;
   userDetails: object = {};
 
-  constructor(private salesforceChatService: SalesforceChatService) {}
+  constructor(private salesforceChatService: SalesforceChatService) { }
 
   ngOnInit(): void { }
 
   public callmessage(): void {
     this.messageBlock.push(`Customer: ${this.inputMsg}`);
-    if(this.sequence === 0){
-      this.askFromDefault(this.defaultMessageSequence)
+    if (this.sequence === 1) {
+      this.askFromDefault(this.defaultMessageSequence);
       this.defaultMessageSequence++;
-    }else{
+    } else {
       this.sendRequest();
     }
   }
 
   private askFromDefault(index): void {
-    if(index !== this.defaultQuestion.length) {
+    if (index !== this.defaultQuestion.length) {
       this.messageBlock.push(`Bot: ${this.defaultQuestion[index]}`);
       this.userDetails[this.defaultQuestion[index]] = this.inputMsg;
-    }else{
+    } else {
       this.checkAvailability();
     }
   }
@@ -52,7 +54,7 @@ export class AppComponent implements OnInit {
   private checkAvailability(): void {
     this.salesforceChatService.checkavailability(environment.buttonID).then(response => {
       console.log(response);
-      // this.initChat();
+      this.initChat();
     });
   }
 
@@ -64,12 +66,13 @@ export class AppComponent implements OnInit {
 
   private startChat(session): void {
     const userInfo = this.userDetails;
-    this.salesforceChatService.startChat(session, userInfo, this.sequence).then(response => {
+    this.salesforceChatService.startChat(session, userInfo, this.sequence, this.messageBlock).then(response => {
       console.log(response);
+      this.sequence++;
     });
   }
 
   private sendRequest(): void {
-    
+
   }
 }

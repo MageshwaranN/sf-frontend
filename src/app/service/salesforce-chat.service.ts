@@ -7,10 +7,10 @@ import { environment } from '../../environments/environment';
 export class SalesforceChatService {
   private header = new HttpHeaders();
   private param = new HttpParams();
-  private baseUrl = environment.orientationHost;
+  private baseUrl = environment.organizationHost;
 
   constructor(private http: HttpClient) {
-    this.header = this.header.set('Access-Control-Allow-Origin', '*')
+    this.header = this.header.set('Access-Control-Allow-Origin', '*');
     this.header = this.header.set('Content-Type', 'application/json');
     this.header = this.header.set('X-LIVEAGENT-API-VERSION', environment.apiVersion);
 
@@ -18,7 +18,7 @@ export class SalesforceChatService {
 
   public async initChat(): Promise<any> {
     try {
-      let response = await this.http
+      const response = await this.http
         .get(`${this.baseUrl}/System/SessionId`, {
           headers: this.header,
           responseType: 'json'
@@ -30,12 +30,12 @@ export class SalesforceChatService {
     }
   }
 
-  public async checkavailability(type){
+  public async checkavailability(type) {
     this.param = this.param.set('org_id', environment.organizationID);
     this.param = this.param.set('deployment_id', environment.deploymentID);
     this.param = this.param.set('Availability.ids', type);
     try {
-      let response = await this.http
+      const response = await this.http
         .get(`${this.baseUrl}/Visitor/Availability`, {
           params: this.param,
           headers: this.header,
@@ -48,12 +48,12 @@ export class SalesforceChatService {
     }
   }
 
-  public async startChat(session, userInfo, sequence): Promise<any> {
+  public async startChat(session, userInfo, sequence, chatHistory): Promise<any> {
     this.header = this.header.set('X-LIVEAGENT-SESSION-KEY', `${session.key}`);
     this.header = this.header.set('X-LIVEAGENT-SEQUENCE', `${sequence}`);
-    const requestBody = this.preChatForm(session, userInfo)
+    const requestBody = this.preChatForm(session, userInfo, chatHistory);
     try {
-      let response = await this.http
+      const response = await this.http
         .post(`${this.baseUrl}/Chasitor/ChasitorInit`, requestBody, {
           headers: this.header,
           responseType: 'json'
@@ -65,43 +65,164 @@ export class SalesforceChatService {
     }
   }
 
-  private preChatForm(session, userInfo) {
-    let request = {
-        "organizationId": environment.organizationID,
-        "deploymentId": environment.deploymentID,
-        "buttonId": environment.buttonID,
-        "doFallback": true,
-        "sessionId": `${session.id}`,
-        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.95 Safari/537.36",
-        "language": "en-US",
-        "screenResolution": "2560x1440",
-        "visitorName": `${userInfo['First Name']}`,
-        "prechatDetails": [
-                {
-                        "label": "E-mail Address",
-                        "value": `${userInfo['Email-ID']}`,
-                        "entityMaps": [
-                           {
-                                "entityName": "Contact",
-                                "fieldName": "Email",
-                                "isFastFillable": false,
-                                "isAutoQueryable": true,
-                                "isExactMatchable": true
-                           }
-                        ],
-                        "transcriptFields": [
-                                "c__EmailAddress"
-                        ],
-                        "displayToAgent": true
-                }             
-        ],
-        "prechatEntities": [],
-        "buttonOverrides": [
+  private preChatForm(session, userInfo, chatHistory) {
+    const request = {
+        'organizationId': environment.organizationID,
+        'deploymentId': environment.deploymentID,
+        'buttonId': environment.buttonID,
+        'doFallback': true,
+        'sessionId': `${session.id}`,
+        'userAgent': `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8)
+                      AppleWebKit/537.36 (KHTML, like Gecko)
+                      Chrome/28.0.1500.95 Safari/537.36`,
+        'language': 'en-US',
+        'screenResolution': '2560x1440',
+        'visitorName': `${userInfo['First Name']}`,
+        'prechatDetails': [
+          {
+                  'label': 'Email',
+                  'value': `${userInfo['Email-ID']}`,
+                  'entityMaps': [
+                     {
+                          'entityName': 'Contact',
+                          'fieldName': 'Email',
+                          'isFastFillable': false,
+                          'isAutoQueryable': true,
+                          'isExactMatchable': true
+                     }
+                  ],
+                  'transcriptFields': [
+                          'liveagent.prechat:ContactEmail'
+                  ],
+                  'displayToAgent': true
+          },
+                          {
+                  'label': 'Onderwerp vraag',
+                  'value': `${userInfo['Product Doubt']}`,
+                  'entityMaps': [
+                     {
+                          'entityName': 'Product Doubt',
+                          'fieldName': 'Onderwerp vraag',
+                          'isFastFillable': false,
+                          'isAutoQueryable': true,
+                          'isExactMatchable': true
+                     }
+                  ],
+                  'transcriptFields': [
+                          'liveagent.prechat:CaseSubject'
+                  ],
+                  'displayToAgent': true
+          },
+                          {
+                  'label': 'Voornaam',
+                  'value': `${userInfo['First Name']}`,
+                  'entityMaps': [
+                     {
+                          'entityName': 'Contact',
+                          'fieldName': 'Voornaam',
+                          'isFastFillable': false,
+                          'isAutoQueryable': true,
+                          'isExactMatchable': true
+                     }
+                  ],
+                  'transcriptFields': [
+                          'liveagent.prechat:ContactFirstName'
+                  ],
+                  'displayToAgent': true
+          },
+          {
+                  'label': 'Achternaam',
+                  'value': `${userInfo['Last Name']}`,
+                  'entityMaps': [
+                     {
+                          'entityName': 'Contact',
+                          'fieldName': 'Achternaam',
+                          'isFastFillable': false,
+                          'isAutoQueryable': true,
+                          'isExactMatchable': true
+                     }
+                  ],
+                  'transcriptFields': [
+                          'liveagent.prechat:ContactLastName'
+                  ],
+                  'displayToAgent': true
+          },
+          {
+                  'label': 'Postcode',
+                  'value': `${userInfo['Post Code']}`,
+                  'entityMaps': [
+                     {
+                          'entityName': 'Contact',
+                          'fieldName': 'Postcode',
+                          'isFastFillable': false,
+                          'isAutoQueryable': true,
+                          'isExactMatchable': true
+                     }
+                  ],
+                  'transcriptFields': [
+                          'liveagent.prechat:AccountZipCode'
+                  ],
+                  'displayToAgent': true
+          },
+          {
+                  'label': 'Geboortendatum',
+                  'value': `${userInfo['DOB(YYYY-MM-DD)']}`,
+                  'entityMaps': [
+                     {
+                          'entityName': 'Contact',
+                          'fieldName': 'Geboortendatum',
+                          'isFastFillable': false,
+                          'isAutoQueryable': true,
+                          'isExactMatchable': true
+                     }
+                  ],
+                  'transcriptFields': [
+                          'liveagent.prechat:AccountBirthdate'
+                  ],
+                  'displayToAgent': true
+          },
+          {
+                  'label': 'Productnummer',
+                  'value': `${userInfo['Product Nummer']}`,
+                  'entityMaps': [
+                     {
+                          'entityName': 'Contact',
+                          'fieldName': 'Productnummer',
+                          'isFastFillable': false,
+                          'isAutoQueryable': true,
+                          'isExactMatchable': true
+                     }
+                  ],
+                  'transcriptFields': [
+                          'liveagent.prechat:ContractPolis'
+                  ],
+                  'displayToAgent': true
+          },
+          {
+                  'label': 'Chat history',
+                  'value': `${chatHistory}`,
+                  'entityMaps': [
+                     {
+                          'entityName': 'Contact',
+                          'fieldName': 'Chat history',
+                          'isFastFillable': false,
+                          'isAutoQueryable': true,
+                          'isExactMatchable': true
+                     }
+                  ],
+                  'transcriptFields': [
+                          'liveagent.prechat:testbotdata__c'
+                  ],
+                  'displayToAgent': true
+          }
+  ],
+        'prechatEntities': [],
+        'buttonOverrides': [
                 environment.buttonID
         ],
-        "receiveQueueUpdates": true,
-        "isPost": true
-    }
+        'receiveQueueUpdates': true,
+        'isPost': true
+    };
     return request;
   }
 
@@ -109,5 +230,5 @@ export class SalesforceChatService {
     console.log(`start catch block`);
     console.log(error);
     console.log(`end catch block`);
-  }  
+  }
 }

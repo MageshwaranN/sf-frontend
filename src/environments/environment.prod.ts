@@ -3,6 +3,6 @@ export const environment = {
   organizationID: '',
   deploymentID: '',
   buttonID: '',
-  orientationHost: '',
+  organizationHost: '',
   apiVersion: ''
 };
