@@ -26,7 +26,9 @@ export class AppComponent implements OnInit {
   outputMsg: string = '';
   sequence: number = 1;
   defaultMessageSequence: number = 0;
+  acknowledgementSequence: number = -1;
   userDetails: object = {};
+  session: object = {};
 
   constructor(private salesforceChatService: SalesforceChatService) { }
 
@@ -38,7 +40,7 @@ export class AppComponent implements OnInit {
       this.askFromDefault(this.defaultMessageSequence);
       this.defaultMessageSequence++;
     } else {
-      this.sendRequest();
+      this.sendMessage(this.session, this.sequence, this.inputMsg);
     }
   }
 
@@ -53,13 +55,13 @@ export class AppComponent implements OnInit {
 
   private checkAvailability(): void {
     this.salesforceChatService.checkavailability(environment.buttonID).then(response => {
-      console.log(response);
       this.initChat();
     });
   }
 
   private initChat(): void {
     this.salesforceChatService.initChat().then(response => {
+      this.session = response;
       this.startChat(response);
     });
   }
@@ -67,12 +69,29 @@ export class AppComponent implements OnInit {
   private startChat(session): void {
     const userInfo = this.userDetails;
     this.salesforceChatService.startChat(session, userInfo, this.sequence, this.messageBlock).then(response => {
-      console.log(response);
+      this.recieveMessage(session, this.acknowledgementSequence);
       this.sequence++;
+      this.acknowledgementSequence++;
     });
   }
 
-  private sendRequest(): void {
+  private recieveMessage(session, acknowledgementSequence): void {
+      this.salesforceChatService.recieveMessage(session, acknowledgementSequence).then(response => {
+        if (response.messages[0].type === 'ChatRequestSuccess' || response.messages[0].type === 'ChatEstablished' ||
+            response.messages[0].type === 'AgentTyping') {
+          this.recieveMessage(session, this.acknowledgementSequence);
+          this.acknowledgementSequence++;
+        } else if (response.messages[0].type === 'ChatMessage') {
+          this.messageBlock.push(`${response.messages[0].message.name}: ${response.messages[0].message.text}`);
+          this.recieveMessage(session, this.acknowledgementSequence);
+          this.acknowledgementSequence++;
+        }
+      });
+  }
 
+  private sendMessage(session, sequence, text): void {
+    this.salesforceChatService.sendMessage(session, sequence, text).then(response => {
+      console.log(response);
+    });
   }
 }

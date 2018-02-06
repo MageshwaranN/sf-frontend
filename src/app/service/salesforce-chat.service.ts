@@ -56,7 +56,7 @@ export class SalesforceChatService {
       const response = await this.http
         .post(`${this.baseUrl}/Chasitor/ChasitorInit`, requestBody, {
           headers: this.header,
-          responseType: 'json'
+          responseType: 'text'
         })
         .toPromise();
       return response;
@@ -224,6 +224,42 @@ export class SalesforceChatService {
         'isPost': true
     };
     return request;
+  }
+
+  public async recieveMessage(session, acknowledgementSequence) {
+    this.param = this.param.set('ack', acknowledgementSequence);
+    this.header = this.header.set('X-LIVEAGENT-SESSION-KEY', session.key);
+    try {
+      const response = await this.http
+        .get(`${this.baseUrl}/System/Messages`, {
+          params: this.param,
+          headers: this.header,
+          responseType: 'json'
+        })
+        .toPromise();
+      return response;
+    } catch (error) {
+      await this.handleError(error);
+    }
+  }
+
+  public async sendMessage(session, sequence, text) {
+    this.header = this.header.set('X-LIVEAGENT-SESSION-KEY', session.key);
+    this.header = this.header.set('X-LIVEAGENT-SEQUENCE', sequence);
+    const body = {
+      'text': text
+    };
+    try {
+      const response = await this.http
+        .post(`${this.baseUrl}/Chasitor/ChatMessage`, body, {
+          headers: this.header,
+          responseType: 'text'
+        })
+        .toPromise();
+      return response;
+    } catch (error) {
+      await this.handleError(error);
+    }
   }
 
   private handleError(error) {
