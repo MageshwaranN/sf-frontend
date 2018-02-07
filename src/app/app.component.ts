@@ -22,11 +22,10 @@ export class AppComponent implements OnInit {
     'Email-ID'
   ];
   messageBlock: string[] = [];
-  inputMsg: string = '';
-  outputMsg: string = '';
-  sequence: number = 1;
-  defaultMessageSequence: number = 0;
-  acknowledgementSequence: number = -1;
+  inputMsg = '';
+  outputMsg = '';
+  sequence = 1;
+  defaultMessageSequence = 0;
   userDetails: object = {};
   session: object = {};
 
@@ -40,7 +39,7 @@ export class AppComponent implements OnInit {
       this.askFromDefault(this.defaultMessageSequence);
       this.defaultMessageSequence++;
     } else {
-      this.sendMessage(this.session, this.sequence, this.inputMsg);
+      this.sendMessage(this.session, this.inputMsg);
     }
     this.inputMsg = '';
   }
@@ -56,8 +55,8 @@ export class AppComponent implements OnInit {
   }
 
   private setUserObject(key, value) {
-    if( key !== '' ){
-      this.userDetails[key] = value; 
+    if ( key !== '' ) {
+      this.userDetails[key] = value;
     }
   }
 
@@ -76,30 +75,27 @@ export class AppComponent implements OnInit {
 
   private startChat(session): void {
     const userInfo = this.userDetails;
-    this.salesforceChatService.startChat(session, userInfo, this.sequence, this.messageBlock).then(response => {
-      this.recieveMessage(session, this.acknowledgementSequence);
+    this.salesforceChatService.startChat(session, userInfo, this.messageBlock).then(response => {
+      this.recieveMessage(session);
       this.sequence++;
-      this.acknowledgementSequence++;
     });
   }
 
-  private recieveMessage(session, acknowledgementSequence): void {
-      this.salesforceChatService.recieveMessage(session, acknowledgementSequence).then(response => {
+  private recieveMessage(session): void {
+      this.salesforceChatService.recieveMessage(session).then(response => {
         if (response.messages[0].type === 'ChatRequestSuccess' || response.messages[0].type === 'ChatEstablished' ||
             response.messages[0].type === 'AgentTyping') {
-          this.recieveMessage(session, this.acknowledgementSequence);
-          this.acknowledgementSequence++;
+          this.recieveMessage(session);
         } else if (response.messages[0].type === 'ChatMessage') {
           this.messageBlock.push(`${response.messages[0].message.name}: ${response.messages[0].message.text}`);
-          this.recieveMessage(session, this.acknowledgementSequence);
-          this.acknowledgementSequence++;
+          this.recieveMessage(session);
         }
       });
   }
 
-  private sendMessage(session, sequence, text): void {
-    this.salesforceChatService.sendMessage(session, sequence, text).then(response => {
-      console.log(response);
+  private sendMessage(session, text): void {
+    this.salesforceChatService.sendMessage(session, text).then(response => {
+      this.recieveMessage(session);
     });
   }
 }

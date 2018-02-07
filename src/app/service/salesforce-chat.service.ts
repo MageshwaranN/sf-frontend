@@ -8,6 +8,8 @@ export class SalesforceChatService {
   private header = new HttpHeaders();
   private param = new HttpParams();
   private baseUrl = environment.organizationHost;
+  private sequence = 1;
+  private sendSequence = 2;
 
   constructor(private http: HttpClient) {
     this.header = this.header.set('Access-Control-Allow-Origin', '*');
@@ -48,9 +50,10 @@ export class SalesforceChatService {
     }
   }
 
-  public async startChat(session, userInfo, sequence, chatHistory): Promise<any> {
+  public async startChat(session, userInfo, chatHistory): Promise<any> {
     this.header = this.header.set('X-LIVEAGENT-SESSION-KEY', `${session.key}`);
-    this.header = this.header.set('X-LIVEAGENT-SEQUENCE', `${sequence}`);
+    this.header = this.header.set('X-LIVEAGENT-SEQUENCE', `${this.sequence}`);
+    this.sequence = this.sequence + 1;
     const requestBody = this.preChatForm(session, userInfo, chatHistory);
     try {
       const response = await this.http
@@ -226,9 +229,10 @@ export class SalesforceChatService {
     return request;
   }
 
-  public async recieveMessage(session, acknowledgementSequence) {
-    this.param = this.param.set('ack', acknowledgementSequence);
+  public async recieveMessage(session) {
+    this.param = this.param.set('ack', `${this.sequence}`);
     this.header = this.header.set('X-LIVEAGENT-SESSION-KEY', session.key);
+    this.sequence = this.sequence + 1;
     try {
       const response = await this.http
         .get(`${this.baseUrl}/System/Messages`, {
@@ -243,9 +247,10 @@ export class SalesforceChatService {
     }
   }
 
-  public async sendMessage(session, sequence, text) {
+  public async sendMessage(session, text) {
     this.header = this.header.set('X-LIVEAGENT-SESSION-KEY', session.key);
-    this.header = this.header.set('X-LIVEAGENT-SEQUENCE', sequence);
+    this.header = this.header.set('X-LIVEAGENT-SEQUENCE', `${this.sendSequence}`);
+    this.sendSequence = this.sendSequence + 1;
     const body = {
       'text': text
     };
