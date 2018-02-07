@@ -238,10 +238,14 @@ export class SalesforceChatService {
         .get(`${this.baseUrl}/System/Messages`, {
           params: this.param,
           headers: this.header,
-          responseType: 'json'
+          responseType: 'json',
+          observe: 'response'
         })
         .toPromise();
-      return response;
+        if (response.status === 200 || response.status === 204){
+          this.recieveMessage(session);
+        }
+      return response.body;
     } catch (error) {
       await this.handleError(error);
     }

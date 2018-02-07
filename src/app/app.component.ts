@@ -62,6 +62,7 @@ export class AppComponent implements OnInit {
 
   private checkAvailability(): void {
     this.salesforceChatService.checkavailability(environment.buttonID).then(response => {
+      // TODO: Find if agents are available.
       this.initChat();
     });
   }
@@ -83,19 +84,13 @@ export class AppComponent implements OnInit {
 
   private recieveMessage(session): void {
       this.salesforceChatService.recieveMessage(session).then(response => {
-        if (response.messages[0].type === 'ChatRequestSuccess' || response.messages[0].type === 'ChatEstablished' ||
-            response.messages[0].type === 'AgentTyping') {
-          this.recieveMessage(session);
-        } else if (response.messages[0].type === 'ChatMessage') {
-          this.messageBlock.push(`${response.messages[0].message.name}: ${response.messages[0].message.text}`);
-          this.recieveMessage(session);
-        }
+          this.messageBlock.push(`Agent ${response.messages[0].message.name}: ${response.messages[0].message.text}`);
       });
   }
 
   private sendMessage(session, text): void {
     this.salesforceChatService.sendMessage(session, text).then(response => {
-      this.recieveMessage(session);
+      /// this.recieveMessage(session);
     });
   }
 }
