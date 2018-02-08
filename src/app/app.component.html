@@ -5,7 +5,7 @@
   </h1>
   <form (ngSubmit)="callmessage()" #msgForm="ngForm">
       <div class="input-group">
-          <input type="text" [(ngModel)]="inputMsg" name="message" placeholder="Type your message here..." required="" />
+          <input type="text" [(ngModel)]="inputMsg" (ngModelChange)="cVistorTyping(inputMsg)" name="message" placeholder="Type your message here..." required="" />
           <span>
               <button id="btn-chat"> Send </button>
           </span>

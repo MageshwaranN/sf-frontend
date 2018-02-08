@@ -33,6 +33,12 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void { }
 
+  public cVistorTyping(inputMsg): void {
+    if (this.sequence !== 1 && inputMsg.length % 10 === 0) {
+      this.typingMessage(this.session);
+    }
+  }
+
   private hasOwnDeepProperty(obj, prop) {
     if (typeof obj === 'object' && obj !== null) {
       if (obj.hasOwnProperty(prop)) {
@@ -90,6 +96,12 @@ export class AppComponent implements OnInit {
     });
   }
 
+  private resyncChat(session): void {
+    this.salesforceChatService.resyncChat(session).then(response => {
+      this.recieveMessage(session);
+    });
+  }
+
   private startChat(session): void {
     const userInfo = this.userDetails;
     this.salesforceChatService.startChat(session, userInfo, this.messageBlock).then(response => {
@@ -102,10 +114,36 @@ export class AppComponent implements OnInit {
     this.salesforceChatService.recieveMessage(session).then(response => {
 
       if (response.status === 200 || response.status === 204) {
-        this.recieveMessage(session);
-        if (response.body.messages[0].type === 'ChatMessage') {
-          console.log(response);
-          this.messageBlock.push(`Agent ${response.body.messages[0].message.name}: ${response.body.messages[0].message.text}`);
+        if (response.status === 204) {
+          this.recieveMessage(session);
+        }else {
+          if (response.body.messages[0].type === 'ChatMessage') {
+            this.recieveMessage(session);
+            this.messageBlock.push(`Agent ${response.body.messages[0].message.name}: ${response.body.messages[0].message.text}`);
+          }
+          if (response.body.messages[0].type === 'ChatRequestSuccess') {
+            this.recieveMessage(session);
+            console.log(`TODO for: ${response.body.messages[0].type}`);
+          }
+          if (response.body.messages[0].type === 'ChatRequestFailed') {
+            console.log(`TODO for: ${response.body.messages[0].type}`);
+          }
+          if (response.body.messages[0].type === 'ChatEstablished') {
+            this.recieveMessage(session);
+            console.log(`TODO for: ${response.body.messages[0].type}`);
+          }
+          if (response.body.messages[0].type === 'AgentNotTyping') {
+            this.recieveMessage(session);
+            console.log(`TODO for: ${response.body.messages[0].type}`);
+          }
+          if (response.body.messages[0].type === 'AgentTyping') {
+            this.recieveMessage(session);
+            console.log(`TODO for: ${response.body.messages[0].type}`);
+          }
+          if (response.body.messages[0].type === 'AgentDisconnect') {
+            this.resyncChat(session);
+            console.log(`TODO for: ${response.body.messages[0].type}`);
+          }
         }
       } else {
         this.salesforceChatService.handleError(response);
@@ -115,7 +153,13 @@ export class AppComponent implements OnInit {
 
   private sendMessage(session, text): void {
     this.salesforceChatService.sendMessage(session, text).then(response => {
-      console.log('send');
+      console.log('send OK');
+    });
+  }
+
+  private typingMessage(session): void {
+    this.salesforceChatService.typingMessage(session).then(response => {
+      console.log('typing OK');
     });
   }
 }

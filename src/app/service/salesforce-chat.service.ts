@@ -32,6 +32,21 @@ export class SalesforceChatService {
     }
   }
 
+  public async resyncChat(session): Promise<any> {
+    this.header = this.header.set('X-LIVEAGENT-SESSION-KEY', `${session.key}`);
+    try {
+      const response = await this.http
+        .get(`${this.baseUrl}/System/ResyncSession`, {
+          headers: this.header,
+          responseType: 'json'
+        })
+        .toPromise();
+      return response;
+    } catch (error) {
+      await this.handleError(error);
+    }
+  }
+
   public async checkavailability(type) {
     this.param = this.param.set('org_id', environment.organizationID);
     this.param = this.param.set('deployment_id', environment.deploymentID);
@@ -258,6 +273,23 @@ export class SalesforceChatService {
     try {
       const response = await this.http
         .post(`${this.baseUrl}/Chasitor/ChatMessage`, body, {
+          headers: this.header,
+          responseType: 'text'
+        })
+        .toPromise();
+      return response;
+    } catch (error) {
+      await this.handleError(error);
+    }
+  }
+
+  public async typingMessage(session) {
+    this.header = this.header.set('X-LIVEAGENT-SESSION-KEY', session.key);
+    this.header = this.header.set('X-LIVEAGENT-SEQUENCE', `${this.sendSequence}`);
+    this.sendSequence = this.sendSequence + 1;
+    try {
+      const response = await this.http
+        .post(`${this.baseUrl}/Chasitor/ChasitorTyping`, {
           headers: this.header,
           responseType: 'text'
         })
