@@ -33,6 +33,21 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void { }
 
+  private hasOwnDeepProperty(obj, prop) {
+    if (typeof obj === 'object' && obj !== null) {
+      if (obj.hasOwnProperty(prop)) {
+        return true;
+      }
+      for (const p in obj) {
+        if (obj.hasOwnProperty(p) &&
+          this.hasOwnDeepProperty(obj[p], prop)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   public callmessage(): void {
     this.messageBlock.push(`Customer: ${this.inputMsg}`);
     if (this.sequence === 1) {
@@ -55,15 +70,16 @@ export class AppComponent implements OnInit {
   }
 
   private setUserObject(key, value) {
-    if ( key !== '' ) {
+    if (key !== '') {
       this.userDetails[key] = value;
     }
   }
 
   private checkAvailability(): void {
     this.salesforceChatService.checkavailability(environment.buttonID).then(response => {
-      // TODO: Find if agents are available.
-      this.initChat();
+      if (this.hasOwnDeepProperty(response, 'isAvailable')) {
+        this.initChat();
+      }
     });
   }
 
@@ -83,14 +99,23 @@ export class AppComponent implements OnInit {
   }
 
   private recieveMessage(session): void {
-      this.salesforceChatService.recieveMessage(session).then(response => {
-          this.messageBlock.push(`Agent ${response.messages[0].message.name}: ${response.messages[0].message.text}`);
-      });
+    this.salesforceChatService.recieveMessage(session).then(response => {
+
+      if (response.status === 200 || response.status === 204) {
+        this.recieveMessage(session);
+        if (response.body.messages[0].type === 'ChatMessage') {
+          console.log(response);
+          this.messageBlock.push(`Agent ${response.body.messages[0].message.name}: ${response.body.messages[0].message.text}`);
+        }
+      } else {
+        this.salesforceChatService.handleError(response);
+      }
+    });
   }
 
   private sendMessage(session, text): void {
     this.salesforceChatService.sendMessage(session, text).then(response => {
-      /// this.recieveMessage(session);
+      console.log('send');
     });
   }
 }

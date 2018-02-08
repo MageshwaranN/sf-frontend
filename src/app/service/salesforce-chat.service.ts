@@ -242,10 +242,7 @@ export class SalesforceChatService {
           observe: 'response'
         })
         .toPromise();
-        if (response.status === 200 || response.status === 204){
-          this.recieveMessage(session);
-        }
-      return response.body;
+        return response;
     } catch (error) {
       await this.handleError(error);
     }
@@ -271,7 +268,7 @@ export class SalesforceChatService {
     }
   }
 
-  private handleError(error) {
+  public async handleError(error) {
     console.log(`start catch block`);
     console.log(error);
     console.log(`end catch block`);
