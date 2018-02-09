@@ -289,7 +289,41 @@ export class SalesforceChatService {
     this.sendSequence = this.sendSequence + 1;
     try {
       const response = await this.http
-        .post(`${this.baseUrl}/Chasitor/ChasitorTyping`, {
+        .post(`${this.baseUrl}/Chasitor/ChasitorTyping`, {}, {
+          headers: this.header,
+          responseType: 'text'
+        })
+        .toPromise();
+      return response;
+    } catch (error) {
+      await this.handleError(error);
+    }
+  }
+
+  public async notTypingMessage(session) {
+    this.header = this.header.set('X-LIVEAGENT-SESSION-KEY', session.key);
+    this.header = this.header.set('X-LIVEAGENT-SEQUENCE', `${this.sendSequence}`);
+    this.sendSequence = this.sendSequence + 1;
+    try {
+      const response = await this.http
+        .post(`${this.baseUrl}/Chasitor/ChasitorNotTyping`, {}, {
+          headers: this.header,
+          responseType: 'text'
+        })
+        .toPromise();
+      return response;
+    } catch (error) {
+      await this.handleError(error);
+    }
+  }
+
+  public async endChat(session) {
+    this.header = this.header.set('X-LIVEAGENT-SESSION-KEY', session.key);
+    this.header = this.header.set('X-LIVEAGENT-SEQUENCE', `${this.sendSequence}`);
+    this.sendSequence = this.sendSequence + 1;
+    try {
+      const response = await this.http
+        .post(`${this.baseUrl}/Chasitor/ChasitorNotTyping`, {reason: 'client'}, {
           headers: this.header,
           responseType: 'text'
         })

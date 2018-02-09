@@ -7,11 +7,15 @@
       <div class="input-group">
           <input type="text" [(ngModel)]="inputMsg" (ngModelChange)="cVistorTyping(inputMsg)" name="message" placeholder="Type your message here..." required="" />
           <span>
-              <button id="btn-chat"> Send </button>
+              <button [disabled] = '!isAgentAvailable'> Send </button>
           </span>
       </div>
-    </form>
-        <div *ngFor="let msg of messageBlock">
-          <p>{{ msg }}</p>
-        <div>
+      <div *ngIf = 'isAgentAvailable && sequence !== 1'>
+          <button (click) = "endChat()">End Live Chat Session</button>
+      </div>
+  </form>
+  <div *ngFor="let msg of messageBlock">
+    <p>{{ msg }}</p>
+  </div>
+  <span *ngIf = '!isAgentAvailable'>Currently agent not available for your selected product Kidnly contact later</span>
 </div>

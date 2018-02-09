@@ -9,5 +9,6 @@ export const environment = {
   deploymentID: '',
   buttonID: '',
   organizationHost: '',
-  apiVersion: ''
+  apiVersion: '',
+  defaultIdealTypeTime: 3000
 };

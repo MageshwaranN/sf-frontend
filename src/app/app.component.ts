@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgModel } from '@angular/forms';
 
 import { environment } from '../environments/environment';
@@ -10,7 +10,7 @@ import { SalesforceChatService } from './service/salesforce-chat.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'Sales Force Chat Intergration Application';
   defaultQuestion: string[] = [
     'Product Doubt',
@@ -28,14 +28,21 @@ export class AppComponent implements OnInit {
   defaultMessageSequence = 0;
   userDetails: object = {};
   session: object = {};
+  isAgentAvailable = true;
+  isVisitorTryping = 0;
 
   constructor(private salesforceChatService: SalesforceChatService) { }
 
   ngOnInit(): void { }
 
+  ngOnDestroy(): void {
+    this.endChat();
+  }
+
   public cVistorTyping(inputMsg): void {
-    if (this.sequence !== 1 && inputMsg.length % 10 === 0) {
+    if (this.sequence !== 1 && this.isVisitorTryping === 0) {
       this.typingMessage(this.session);
+      setTimeout(() => this.notTypingMessage(this.session), environment.defaultIdealTypeTime);
     }
   }
 
@@ -85,6 +92,8 @@ export class AppComponent implements OnInit {
     this.salesforceChatService.checkavailability(environment.buttonID).then(response => {
       if (this.hasOwnDeepProperty(response, 'isAvailable')) {
         this.initChat();
+      }else {
+        this.isAgentAvailable = false;
       }
     });
   }
@@ -158,8 +167,23 @@ export class AppComponent implements OnInit {
   }
 
   private typingMessage(session): void {
+    this.isVisitorTryping = 1;
     this.salesforceChatService.typingMessage(session).then(response => {
       console.log('typing OK');
+    });
+  }
+
+  public endChat(): void {
+    this.salesforceChatService.endChat(this.session).then(response => {
+      debugger
+      console.log('End chat OK');
+    });
+  }
+
+  private notTypingMessage(session): void {
+    this.isVisitorTryping = 0;
+    this.salesforceChatService.notTypingMessage(session).then(response => {
+      console.log('not Typing OK');
     });
   }
 }
