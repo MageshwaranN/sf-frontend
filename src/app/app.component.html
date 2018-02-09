@@ -1,21 +1,22 @@
 <!--The content below is only a placeholder and can be replaced.-->
 <div style="text-align:center">
-  <h1>
-    Welcome to {{ title }}!
-  </h1>
-  <form (ngSubmit)="callmessage()" #msgForm="ngForm">
-      <div class="input-group">
-          <input type="text" [(ngModel)]="inputMsg" (ngModelChange)="cVistorTyping(inputMsg)" name="message" placeholder="Type your message here..." required="" />
-          <span>
-              <button [disabled] = '!isAgentAvailable'> Send </button>
-          </span>
-      </div>
-      <div *ngIf = 'isAgentAvailable && sequence !== 1'>
-          <button (click) = "endChat()">End Live Chat Session</button>
-      </div>
-  </form>
-  <div *ngFor="let msg of messageBlock">
-    <p>{{ msg.agent}} : {{msg.message }}</p>
-  </div>
-  <span *ngIf = '!isAgentAvailable'>Currently agent not available for your selected product Kidnly contact later</span>
+    <h1>
+        Welcome to {{ title }}!
+    </h1>
+    <form (ngSubmit)="callmessage()" #msgForm="ngForm">
+        <div class="input-group">
+            <input type="text" [(ngModel)]="inputMsg" (ngModelChange)="cVistorTyping(inputMsg)" name="message" placeholder="Type your message here..."
+                required="" />
+            <span>
+                <button [disabled]='!isAgentAvailable'> Send </button>
+            </span>
+        </div>
+    </form>
+    <div *ngIf='isAgentAvailable && sequence !== 1'>
+        <button (click)="endChat()">End Live Chat Session</button>
+    </div>
+    <div *ngFor="let msg of messageBlock">
+        <p>{{ msg.agent}} : {{msg.message }}</p>
+    </div>
+    <span *ngIf='!isAgentAvailable'>Currently agent not available for your selected product Kidnly contact later</span>
 </div>

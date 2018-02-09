@@ -188,6 +188,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public endChat(): void {
+    this.sequence = 1;
     this.salesforceChatService.endChat(this.session).then(response => {
       console.log('End chat OK');
     });
