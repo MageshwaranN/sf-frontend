@@ -21,7 +21,8 @@ export class AppComponent implements OnInit, OnDestroy {
     'Post Code',
     'Email-ID'
   ];
-  messageBlock: string[] = [];
+  messageBlock: Object[] = [];
+  styledMessages: string;
   inputMsg = '';
   outputMsg = '';
   sequence = 1;
@@ -62,7 +63,10 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public callmessage(): void {
-    this.messageBlock.push(`Customer: ${this.inputMsg}`);
+    this.messageBlock.push( {
+      'agent': 'You',
+      'message': this.inputMsg
+    });
     if (this.sequence === 1) {
       this.askFromDefault(this.defaultMessageSequence);
       this.defaultMessageSequence++;
@@ -76,8 +80,15 @@ export class AppComponent implements OnInit, OnDestroy {
     this.setUserObject(this.outputMsg, this.inputMsg);
     if (index !== this.defaultQuestion.length) {
       this.outputMsg = this.defaultQuestion[index];
-      this.messageBlock.push(`Bot: ${this.outputMsg}`);
+      this.messageBlock.push( {
+        'agent': 'Bot',
+        'message': this.outputMsg
+      });
     } else {
+      const styledMessages = this.messageBlock.map((message) => {
+        return `<b>${message.agent}</b> : ${message.message}</br>`;
+      });
+      this.styledMessages = styledMessages.toString().replace(/You/g, `${this.userDetails['First Name']}`).replace(/,/g , '');
       this.checkAvailability();
     }
   }
@@ -113,7 +124,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private startChat(session): void {
     const userInfo = this.userDetails;
-    this.salesforceChatService.startChat(session, userInfo, this.messageBlock).then(response => {
+    this.salesforceChatService.startChat(session, userInfo, this.styledMessages).then(response => {
       this.recieveMessage(session);
       this.sequence++;
     });
@@ -128,7 +139,10 @@ export class AppComponent implements OnInit, OnDestroy {
         }else {
           if (response.body.messages[0].type === 'ChatMessage') {
             this.recieveMessage(session);
-            this.messageBlock.push(`Agent ${response.body.messages[0].message.name}: ${response.body.messages[0].message.text}`);
+            this.messageBlock.push( {
+              'agent': response.body.messages[0].message.name,
+              'message': response.body.messages[0].message.text
+            });
           }
           if (response.body.messages[0].type === 'ChatRequestSuccess') {
             this.recieveMessage(session);
@@ -175,7 +189,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public endChat(): void {
     this.salesforceChatService.endChat(this.session).then(response => {
-      debugger
       console.log('End chat OK');
     });
   }

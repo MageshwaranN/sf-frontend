@@ -15,7 +15,7 @@
       </div>
   </form>
   <div *ngFor="let msg of messageBlock">
-    <p>{{ msg }}</p>
+    <p>{{ msg.agent}} : {{msg.message }}</p>
   </div>
   <span *ngIf = '!isAgentAvailable'>Currently agent not available for your selected product Kidnly contact later</span>
 </div>
