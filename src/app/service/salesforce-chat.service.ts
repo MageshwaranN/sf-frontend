@@ -323,7 +323,7 @@ export class SalesforceChatService {
     this.sendSequence = this.sendSequence + 1;
     try {
       const response = await this.http
-        .post(`${this.baseUrl}/Chasitor/ChasitorNotTyping`, {reason: 'client'}, {
+        .post(`${this.baseUrl}/Chasitor/ChatEnd`, {reason: 'client'}, {
           headers: this.header,
           responseType: 'text'
         })

@@ -136,7 +136,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.salesforceChatService.recieveMessage(session).then(response => {
 
       if (response.status === 200 || response.status === 204) {
-        if (response.status === 204) {
+        if (response.status === 204 && this.sequence !== 1) {
           this.recieveMessage(session);
         }else {
           if (response.body.messages[0].type === 'ChatMessage') {
