@@ -63,17 +63,19 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public callmessage(): void {
-    this.messageBlock.push( {
-      'agent': 'You',
-      'message': this.inputMsg
-    });
-    if (this.sequence === 1) {
-      this.askFromDefault(this.defaultMessageSequence);
-      this.defaultMessageSequence++;
-    } else {
-      this.sendMessage(this.session, this.inputMsg);
+    if (this.inputMsg !== '') {
+      this.messageBlock.push( {
+        'agent': 'You',
+        'message': this.inputMsg
+      });
+      if (this.sequence === 1) {
+        this.askFromDefault(this.defaultMessageSequence);
+        this.defaultMessageSequence++;
+      } else {
+        this.sendMessage(this.session, this.inputMsg);
+      }
+      this.inputMsg = '';
     }
-    this.inputMsg = '';
   }
 
   private askFromDefault(index): void {
