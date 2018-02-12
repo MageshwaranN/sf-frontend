@@ -64,7 +64,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public callmessage(): void {
     if (this.inputMsg !== '') {
-      this.messageBlock.push( {
+      this.messageBlock.push({
         'agent': 'You',
         'message': this.inputMsg
       });
@@ -82,7 +82,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.setUserObject(this.outputMsg, this.inputMsg);
     if (index !== this.defaultQuestion.length) {
       this.outputMsg = this.defaultQuestion[index];
-      this.messageBlock.push( {
+      this.messageBlock.push({
         'agent': 'Bot',
         'message': this.outputMsg
       });
@@ -90,7 +90,7 @@ export class AppComponent implements OnInit, OnDestroy {
       const styledMessages = this.messageBlock.map((message) => {
         return `<b>${message.agent}</b> : ${message.message}</br>`;
       });
-      this.styledMessages = styledMessages.toString().replace(/You/g, `${this.userDetails['First Name']}`).replace(/,/g , '');
+      this.styledMessages = styledMessages.toString().replace(/You/g, `${this.userDetails['First Name']}`).replace(/,/g, '');
       this.checkAvailability();
     }
   }
@@ -105,7 +105,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.salesforceChatService.checkavailability(environment.buttonID).then(response => {
       if (this.hasOwnDeepProperty(response, 'isAvailable')) {
         this.initChat();
-      }else {
+      } else {
         this.isAgentAvailable = false;
       }
     });
@@ -136,12 +136,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.salesforceChatService.recieveMessage(session).then(response => {
 
       if (response.status === 200 || response.status === 204) {
-        if (response.status === 204 && this.sequence !== 1) {
-          this.recieveMessage(session);
-        }else {
+        if (response.status === 200) {
           if (response.body.messages[0].type === 'ChatMessage') {
             this.recieveMessage(session);
-            this.messageBlock.push( {
+            this.messageBlock.push({
               'agent': response.body.messages[0].message.name,
               'message': response.body.messages[0].message.text
             });
@@ -150,7 +148,7 @@ export class AppComponent implements OnInit, OnDestroy {
             this.recieveMessage(session);
             console.log(`TODO for: ${response.body.messages[0].type}`);
           }
-          if (response.body.messages[0].type === 'ChatRequestFailed') {
+          if (response.body.messages[0].type === 'ChatRequestFail') {
             console.log(`TODO for: ${response.body.messages[0].type}`);
           }
           if (response.body.messages[0].type === 'ChatEstablished') {
@@ -169,6 +167,11 @@ export class AppComponent implements OnInit, OnDestroy {
             this.resyncChat(session);
             console.log(`TODO for: ${response.body.messages[0].type}`);
           }
+          if (response.body.messages[0].type === 'ChatEnded') {
+            console.log(`TODO for: ${response.body.messages[0].type}`);
+          }
+        } else if (response.status === 204 && this.sequence !== 1) {
+          this.recieveMessage(session);
         }
       } else {
         this.salesforceChatService.handleError(response);
