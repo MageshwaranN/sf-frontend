@@ -87,7 +87,7 @@ export class AppComponent implements OnInit, OnDestroy {
         'message': this.outputMsg
       });
     } else {
-      const styledMessages = this.messageBlock.map((message) => {
+      const styledMessages = this.messageBlock.map((message: any) => {
         return `<b>${message.agent}</b> : ${message.message}</br>`;
       });
       this.styledMessages = styledMessages.toString().replace(/You/g, `${this.userDetails['First Name']}`).replace(/,/g, '');
@@ -126,14 +126,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private startChat(session): void {
     const userInfo = this.userDetails;
-    this.salesforceChatService.startChat(session, userInfo, this.styledMessages).then(response => {
+    this.salesforceChatService.startChat(session, userInfo, this.styledMessages).then((response: any) => {
       this.recieveMessage(session);
       this.sequence++;
     });
   }
 
   private recieveMessage(session): void {
-    this.salesforceChatService.recieveMessage(session).then(response => {
+    this.salesforceChatService.recieveMessage(session).then((response: any) => {
 
       if (response.status === 200 || response.status === 204) {
         if (response.status === 200) {
