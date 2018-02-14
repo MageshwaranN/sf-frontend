@@ -10,6 +10,8 @@ export class SalesforceChatService {
   private baseUrl = environment.organizationHost;
   private sequence = 1;
   private sendSequence = 2;
+  private buttonLinks = environment.buttonMaps;
+  private selectedButtonID: string;
 
   constructor(private http: HttpClient) {
     this.header = this.header.set('Access-Control-Allow-Origin', '*');
@@ -47,10 +49,11 @@ export class SalesforceChatService {
     }
   }
 
-  public async checkavailability(type) {
+  public async checkavailability(klantvraag) {
+    this.selectedButtonID = this.buttonLinks[klantvraag];
     this.param = this.param.set('org_id', environment.organizationID);
     this.param = this.param.set('deployment_id', environment.deploymentID);
-    this.param = this.param.set('Availability.ids', type);
+    this.param = this.param.set('Availability.ids', this.selectedButtonID);
     try {
       const response = await this.http
         .get(`${this.baseUrl}/Visitor/Availability`, {
@@ -85,161 +88,144 @@ export class SalesforceChatService {
 
   private preChatForm(session, userInfo, chatHistory) {
     const request = {
-        'organizationId': environment.organizationID,
-        'deploymentId': environment.deploymentID,
-        'buttonId': environment.buttonID,
-        'doFallback': true,
-        'sessionId': `${session.id}`,
-        'userAgent': `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8)
+      'organizationId': environment.organizationID,
+      'deploymentId': environment.deploymentID,
+      'buttonId': this.selectedButtonID,
+      'doFallback': true,
+      'sessionId': `${session.id}`,
+      'userAgent': `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_6_8)
                       AppleWebKit/537.36 (KHTML, like Gecko)
                       Chrome/28.0.1500.95 Safari/537.36`,
-        'language': 'en-US',
-        'screenResolution': '2560x1440',
-        'visitorName': `${userInfo['First Name']}`,
-        'prechatDetails': [
-          {
-                  'label': 'Email',
-                  'value': `${userInfo['Email-ID']}`,
-                  'entityMaps': [
-                     {
-                          'entityName': 'Contact',
-                          'fieldName': 'Email',
-                          'isFastFillable': false,
-                          'isAutoQueryable': true,
-                          'isExactMatchable': true
-                     }
-                  ],
-                  'transcriptFields': [
-                          'liveagent.prechat:ContactEmail'
-                  ],
-                  'displayToAgent': true
-          },
-                          {
-                  'label': 'Onderwerp vraag',
-                  'value': `${userInfo['Product Doubt']}`,
-                  'entityMaps': [
-                     {
-                          'entityName': 'Product Doubt',
-                          'fieldName': 'Onderwerp vraag',
-                          'isFastFillable': false,
-                          'isAutoQueryable': true,
-                          'isExactMatchable': true
-                     }
-                  ],
-                  'transcriptFields': [
-                          'liveagent.prechat:CaseSubject'
-                  ],
-                  'displayToAgent': true
-          },
-                          {
-                  'label': 'Voornaam',
-                  'value': `${userInfo['First Name']}`,
-                  'entityMaps': [
-                     {
-                          'entityName': 'Contact',
-                          'fieldName': 'Voornaam',
-                          'isFastFillable': false,
-                          'isAutoQueryable': true,
-                          'isExactMatchable': true
-                     }
-                  ],
-                  'transcriptFields': [
-                          'liveagent.prechat:ContactFirstName'
-                  ],
-                  'displayToAgent': true
-          },
-          {
-                  'label': 'Achternaam',
-                  'value': `${userInfo['Last Name']}`,
-                  'entityMaps': [
-                     {
-                          'entityName': 'Contact',
-                          'fieldName': 'Achternaam',
-                          'isFastFillable': false,
-                          'isAutoQueryable': true,
-                          'isExactMatchable': true
-                     }
-                  ],
-                  'transcriptFields': [
-                          'liveagent.prechat:ContactLastName'
-                  ],
-                  'displayToAgent': true
-          },
-          {
-                  'label': 'Postcode',
-                  'value': `${userInfo['Post Code']}`,
-                  'entityMaps': [
-                     {
-                          'entityName': 'Contact',
-                          'fieldName': 'Postcode',
-                          'isFastFillable': false,
-                          'isAutoQueryable': true,
-                          'isExactMatchable': true
-                     }
-                  ],
-                  'transcriptFields': [
-                          'liveagent.prechat:AccountZipCode'
-                  ],
-                  'displayToAgent': true
-          },
-          {
-                  'label': 'Geboortendatum',
-                  'value': `${userInfo['DOB(YYYY-MM-DD)']}`,
-                  'entityMaps': [
-                     {
-                          'entityName': 'Contact',
-                          'fieldName': 'Geboortendatum',
-                          'isFastFillable': false,
-                          'isAutoQueryable': true,
-                          'isExactMatchable': true
-                     }
-                  ],
-                  'transcriptFields': [
-                          'liveagent.prechat:AccountBirthdate'
-                  ],
-                  'displayToAgent': true
-          },
-          {
-                  'label': 'Productnummer',
-                  'value': `${userInfo['Product Nummer']}`,
-                  'entityMaps': [
-                     {
-                          'entityName': 'Contact',
-                          'fieldName': 'Productnummer',
-                          'isFastFillable': false,
-                          'isAutoQueryable': true,
-                          'isExactMatchable': true
-                     }
-                  ],
-                  'transcriptFields': [
-                          'liveagent.prechat:ContractPolis'
-                  ],
-                  'displayToAgent': true
-          },
-          {
-                  'label': 'Chat history',
-                  'value': `${chatHistory}`,
-                  'entityMaps': [
-                     {
-                          'entityName': 'Contact',
-                          'fieldName': 'Chat history',
-                          'isFastFillable': false,
-                          'isAutoQueryable': true,
-                          'isExactMatchable': true
-                     }
-                  ],
-                  'transcriptFields': [
-                          'liveagent.prechat:testbotdata__c'
-                  ],
-                  'displayToAgent': true
-          }
-  ],
-        'prechatEntities': [],
-        'buttonOverrides': [
-                environment.buttonID
-        ],
-        'receiveQueueUpdates': true,
-        'isPost': true
+      'language': 'en-US',
+      'screenResolution': '2560x1440',
+      'visitorName': `${userInfo['Voornaam']}`,
+      'prechatDetails': [
+        {
+          'label': 'Onderwerp van uw vraag',
+          'value': `${userInfo['Onderwerp van uw vraag']}`,
+          'entityMaps': [
+            {
+              'entityName': 'Uw vraag',
+              'fieldName': 'Uw vraag',
+              'isFastFillable': false,
+              'isAutoQueryable': true,
+              'isExactMatchable': true
+            }
+          ],
+          'transcriptFields': [
+            'liveagent.prechat:00Klantvraag'
+          ],
+          'displayToAgent': true
+        },
+        {
+          'label': 'Voornaam',
+          'value': `${userInfo['Voornaam']}`,
+          'entityMaps': [
+            {
+              'entityName': 'Contact',
+              'fieldName': 'Voornaam',
+              'isFastFillable': false,
+              'isAutoQueryable': true,
+              'isExactMatchable': true
+            }
+          ],
+          'transcriptFields': [
+            'liveagent.prechat:01Voornaam'
+          ],
+          'displayToAgent': true
+        },
+        {
+          'label': 'Achternaam',
+          'value': `${userInfo['Achternaam']}`,
+          'entityMaps': [
+            {
+              'entityName': 'Contact',
+              'fieldName': 'Achternaam',
+              'isFastFillable': false,
+              'isAutoQueryable': true,
+              'isExactMatchable': true
+            }
+          ],
+          'transcriptFields': [
+            'liveagent.prechat:02Achternaam'
+          ],
+          'displayToAgent': true
+        },
+        {
+          'label': 'Postcode',
+          'value': `${userInfo['Postcode']}`,
+          'entityMaps': [
+            {
+              'entityName': 'Contact',
+              'fieldName': 'Postcode',
+              'isFastFillable': false,
+              'isAutoQueryable': true,
+              'isExactMatchable': true
+            }
+          ],
+          'transcriptFields': [
+            'liveagent.prechat:04Postcode'
+          ],
+          'displayToAgent': true
+        },
+        {
+          'label': 'Geboortendatum',
+          'value': `${userInfo['Geboortedatum(YYYY-MM-DD)']}`,
+          'entityMaps': [
+            {
+              'entityName': 'Contact',
+              'fieldName': 'Geboortendatum',
+              'isFastFillable': false,
+              'isAutoQueryable': true,
+              'isExactMatchable': true
+            }
+          ],
+          'transcriptFields': [
+            'lliveagent.prechat:03Geboortedatum'
+          ],
+          'displayToAgent': true
+        },
+        {
+          'label': 'Huisnummer',
+          'value': `${userInfo['Huisnummer']}`,
+          'entityMaps': [
+            {
+              'entityName': 'Contact',
+              'fieldName': 'Huisnummer',
+              'isFastFillable': false,
+              'isAutoQueryable': true,
+              'isExactMatchable': true
+            }
+          ],
+          'transcriptFields': [
+            'liveagent.prechat:05huisnummer'
+          ],
+          'displayToAgent': true
+        },
+        {
+          'label': 'Chat history',
+          'value': `${chatHistory}`,
+          'entityMaps': [
+            {
+              'entityName': 'Contact',
+              'fieldName': 'Chat history',
+              'isFastFillable': false,
+              'isAutoQueryable': true,
+              'isExactMatchable': true
+            }
+          ],
+          'transcriptFields': [
+            'liveagent.prechat.save:testbotdata__c'
+          ],
+          'displayToAgent': true
+        }
+      ],
+      'prechatEntities': [],
+      'buttonOverrides': [
+        this.selectedButtonID
+      ],
+      'receiveQueueUpdates': true,
+      'isPost': true
     };
     return request;
   }
@@ -257,7 +243,7 @@ export class SalesforceChatService {
           observe: 'response'
         })
         .toPromise();
-        return response;
+      return response;
     } catch (error) {
       await this.handleError(error);
     }
@@ -323,7 +309,7 @@ export class SalesforceChatService {
     this.sendSequence = this.sendSequence + 1;
     try {
       const response = await this.http
-        .post(`${this.baseUrl}/Chasitor/ChatEnd`, {reason: 'client'}, {
+        .post(`${this.baseUrl}/Chasitor/ChatEnd`, { reason: 'client' }, {
           headers: this.header,
           responseType: 'text'
         })

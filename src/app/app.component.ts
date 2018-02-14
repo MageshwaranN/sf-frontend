@@ -4,6 +4,7 @@ import { NgModel } from '@angular/forms';
 import { environment } from '../environments/environment';
 
 import { SalesforceChatService } from './service/salesforce-chat.service';
+import { fail } from 'assert';
 
 @Component({
   selector: 'app-root',
@@ -13,13 +14,12 @@ import { SalesforceChatService } from './service/salesforce-chat.service';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'Sales Force Chat Intergration Application';
   defaultQuestion: string[] = [
-    'Product Doubt',
-    'First Name',
-    'Last Name',
-    'DOB(YYYY-MM-DD)',
-    'Product Nummer',
-    'Post Code',
-    'Email-ID'
+    'Voornaam',
+    'Achternaam',
+    'Geboortedatum(YYYY-MM-DD)',
+    'Postcode',
+    'Huisnummer',
+    'Onderwerp van uw vraag'
   ];
   messageBlock: Object[] = [];
   styledMessages: string;
@@ -31,6 +31,16 @@ export class AppComponent implements OnInit, OnDestroy {
   session: object = {};
   isAgentAvailable = true;
   isVisitorTryping = 0;
+  klantvraags = [
+    'Algemeen',
+    'Spaar of belegings product',
+    'Hypotheek',
+    'Leven',
+    'Pensioen',
+    'Schadeverzekering'
+  ];
+  isklantvraags = true;
+
 
   constructor(private salesforceChatService: SalesforceChatService) { }
 
@@ -62,6 +72,12 @@ export class AppComponent implements OnInit, OnDestroy {
     return false;
   }
 
+  public selectedKlantvraag(klantvraag) {
+    this.inputMsg = klantvraag;
+    this.callmessage();
+    this.isklantvraags = false;
+  }
+
   public callmessage(): void {
     if (this.inputMsg !== '') {
       this.messageBlock.push({
@@ -90,7 +106,7 @@ export class AppComponent implements OnInit, OnDestroy {
       const styledMessages = this.messageBlock.map((message: any) => {
         return `<b>${message.agent}</b> : ${message.message}</br>`;
       });
-      this.styledMessages = styledMessages.toString().replace(/You/g, `${this.userDetails['First Name']}`).replace(/,/g, '');
+      this.styledMessages = styledMessages.toString().replace(/You/g, `${this.userDetails['Voornaam']}`).replace(/,/g, '');
       this.checkAvailability();
     }
   }
@@ -102,7 +118,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private checkAvailability(): void {
-    this.salesforceChatService.checkavailability(environment.buttonID).then(response => {
+    this.salesforceChatService.checkavailability(this.userDetails['Onderwerp van uw vraag']).then(response => {
       if (this.hasOwnDeepProperty(response, 'isAvailable')) {
         this.initChat();
       } else {

@@ -17,6 +17,11 @@
     </div>
     <div *ngFor="let msg of messageBlock">
         <p>{{ msg.agent}} : {{msg.message }}</p>
+        <div *ngIf='msg.message === "Onderwerp van uw vraag"'>
+            <div *ngFor="let klantvraag of klantvraags">
+                    <button [disabled]='!isklantvraags' (click)="selectedKlantvraag(klantvraag)">{{klantvraag}}</button>
+            </div>
+        </div>
     </div>
     <span *ngIf='!isAgentAvailable'>Currently agent not available for your selected product Kindly contact later</span>
 </div>
