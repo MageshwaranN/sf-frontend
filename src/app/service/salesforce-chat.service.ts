@@ -106,10 +106,7 @@ export class SalesforceChatService {
           'entityMaps': [
             {
               'entityName': 'Account',
-              'fieldName': 'Uw vraag',
-              'isFastFillable': false,
-              'isAutoQueryable': true,
-              'isExactMatch': false
+              'fieldName': 'Uw vraag'
             }
           ],
           'transcriptFields': [
@@ -123,10 +120,7 @@ export class SalesforceChatService {
           'entityMaps': [
             {
               'entityName': 'Account',
-              'fieldName': 'Voornaam',
-              'isFastFillable': false,
-              'isAutoQueryable': true,
-              'isExactMatch': false
+              'fieldName': 'Voornaam'
             }
           ],
           'transcriptFields': [
@@ -140,10 +134,7 @@ export class SalesforceChatService {
           'entityMaps': [
             {
               'entityName': 'Account',
-              'fieldName': 'Achternaam',
-              'isFastFillable': false,
-              'isAutoQueryable': true,
-              'isExactMatch': false
+              'fieldName': 'Achternaam'
             }
           ],
           'transcriptFields': [
@@ -157,15 +148,11 @@ export class SalesforceChatService {
           'entityMaps': [
             {
               'entityName': 'Account',
-              'fieldName': 'Postcode',
-              'doFind': true,
-              'isFastFillable': false,
-              'isAutoQueryable': true,
-              'isExactMatchable': true
+              'fieldName': 'BillingPostalCode'
             }
           ],
           'transcriptFields': [
-            'liveagent.prechat:BillingPostalcode'
+            'liveagent.prechat:04Postcode'
           ],
           'displayToAgent': true
         },
@@ -175,15 +162,11 @@ export class SalesforceChatService {
           'entityMaps': [
             {
               'entityName': 'Account',
-              'fieldName': 'Geboortendatum',
-              'doFind': true,
-              'isFastFillable': false,
-              'isAutoQueryable': true,
-              'isExactMatchable': true
+              'fieldName': 'PersonBirthdate'
             }
           ],
           'transcriptFields': [
-            'liveagent.prechat:PersonBirthdate'
+            'liveagent.prechat:03Geboortedatum'
           ],
           'displayToAgent': true
         },
@@ -193,10 +176,7 @@ export class SalesforceChatService {
           'entityMaps': [
             {
               'entityName': 'Account',
-              'fieldName': 'Huisnummer',
-              'isFastFillable': false,
-              'isAutoQueryable': true,
-              'isExactMatch': false
+              'fieldName': 'Huisnummer'
             }
           ],
           'transcriptFields': [
@@ -210,10 +190,7 @@ export class SalesforceChatService {
           'entityMaps': [
             {
               'entityName': 'Account',
-              'fieldName': 'Chat history',
-              'isFastFillable': false,
-              'isAutoQueryable': true,
-              'isExactMatch': false
+              'fieldName': 'Chat history'
             }
           ],
           'transcriptFields': [
@@ -222,7 +199,28 @@ export class SalesforceChatService {
           'displayToAgent': true
         }
       ],
-      'prechatEntities': [],
+      'prechatEntities': [
+        {
+          'entityName': 'Account',
+          'linkToEntityName': 'Case',
+          'entityFieldsMaps': [
+            {
+              'fieldName': 'PersonBirthdate',
+              'label': 'Geboortendatum',
+              'doFind': true,
+              'isExactMatch': true,
+              'doCreate': false
+            },
+            {
+              'fieldName': 'BillingPostalCode',
+              'label': 'Postcode',
+              'doFind': true,
+              'isExactMatch': true,
+              'doCreate': false
+            }
+          ]
+        }
+      ],
       'buttonOverrides': [
         this.selectedButtonID
       ],

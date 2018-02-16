@@ -196,7 +196,7 @@ export class AppComponent implements OnInit, OnDestroy {
           }
           if (response.body.messages[0].type === 'FileTransfer') {
             this.recieveMessage(session);
-            console.log('File transfer functionality');
+            console.log('File upload functionality functionality');
             console.log(`TODO for: ${response.body.messages[0].type}`);
           }
         } else if (response.status === 204 && this.sequence !== 1) {

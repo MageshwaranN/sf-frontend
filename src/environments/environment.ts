@@ -7,7 +7,7 @@ export const environment = {
   production: false,
   organizationID: '',
   deploymentID: '',
-  buttonID: '',
+  buttonMaps: {},
   organizationHost: '',
   apiVersion: '',
   defaultIdealTypeTime: 3000
